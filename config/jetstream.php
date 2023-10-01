@@ -4,7 +4,6 @@ use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Middleware\AuthenticateSession;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Jetstream Stack
@@ -15,9 +14,7 @@ return [
     | during installation and will not need to be changed after that.
     |
     */
-
     'stack' => 'livewire',
-
     /*
      |--------------------------------------------------------------------------
      | Jetstream Route Middleware
@@ -28,11 +25,8 @@ return [
      | these middleware; however, this default value is usually sufficient.
      |
      */
-
     'middleware' => ['web'],
-
     'auth_session' => AuthenticateSession::class,
-
     /*
     |--------------------------------------------------------------------------
     | Jetstream Guard
@@ -43,9 +37,7 @@ return [
     | guards that is already present in your "auth" configuration file.
     |
     */
-
     'guard' => 'sanctum',
-
     /*
     |--------------------------------------------------------------------------
     | Features
@@ -56,15 +48,13 @@ return [
     | these features or you can even remove all of these if you need to.
     |
     */
-
     'features' => [
         // Features::termsAndPrivacyPolicy(),
-        // Features::profilePhotos(),
+        Features::profilePhotos(),
         // Features::api(),
         // Features::teams(['invitations' => true]),
         Features::accountDeletion(),
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Profile Photo Disk
@@ -75,7 +65,5 @@ return [
     | this will be the "public" disk but you may adjust this if needed.
     |
     */
-
     'profile_photo_disk' => 'public',
-
 ];
