@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\PermissionResource\RelationManagers\RolesRelationManager;
+use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -93,10 +95,8 @@ class UserResource extends Resource
                                 }
                                 return;
                             }),
-
                     ])->columns(2),
                 // DateTimePicker::make('email_verified_at'),
-
                 // Textarea::make('two_factor_secret')
                 //     ->maxLength(65535)
                 //     ->columnSpanFull(),
@@ -127,8 +127,6 @@ class UserResource extends Resource
                             ->searchable()
                             ->preload()
                     ]),
-
-
                 // TextInput::make('banned_time'),
                 // TextInput::make('wrong_attempt')
                 //     ->required()
@@ -194,7 +192,8 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RolesRelationManager::class,
+            PermissionsRelationManager::class
         ];
     }
     public static function getPages(): array

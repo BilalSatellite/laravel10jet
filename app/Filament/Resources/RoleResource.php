@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
+use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
 
@@ -80,7 +81,9 @@ class RoleResource extends Resource
     }
     public static function getRelations(): array
     {
-        return [];
+        return [
+            PermissionsRelationManager::class
+        ];
     }
     public static function getPages(): array
     {
