@@ -9,9 +9,11 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use Filament\Resources\Pages\Page;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -22,34 +24,79 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\RelationManagers;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationGroup = 'User Manage';
+    protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('email')
+                            ->email()
+                            ->unique()
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(2),
+                Section::make()
+                    ->schema([
+                        TextInput::make('password')
+                            ->password()
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (Page $livewire) => ($livewire instanceof CreateUser))
+                            ->maxLength(255),
+                        Select::make('banned_status')
+                            ->options([
+                                '1-Day' => '1-Day',
+                                '1-Week' => '1-Week',
+                                '1-Month' => '1-Month',
+                                'Block' => 'Block',
+                                'Active' => 'Active'
+                            ])
+                            ->default('Active')
+                            ->live()
+                            ->native(false)
+                            ->required()
+                            ->afterStateUpdated(function (string $operation, $state, Forms\Set $set) {
+                                switch ($state) {
+                                    case ('Block'):
+                                        $set('banned_time', 'Block');
+                                        break;
+                                    case ('1-Day'):
+                                        $set('banned_time',  Carbon::now()->addDays(1));
+                                        break;
+                                    case ('1-Week'):
+                                        $set('banned_time', Carbon::now()->addDays(7));
+                                        break;
+                                    case ('1-Month'):
+                                        $set('banned_time', Carbon::now()->addDays(30));
+                                        // return  Carbon::now()->addDays(30);
+                                        break;
+                                    default:
+                                        $set('banned_time', NULL);
+                                }
+                                return;
+                            }),
+
+                    ])->columns(2),
                 // DateTimePicker::make('email_verified_at'),
-                TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255)
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn (string $context): bool => $context === 'create'),
+
                 // Textarea::make('two_factor_secret')
                 //     ->maxLength(65535)
                 //     ->columnSpanFull(),
@@ -64,38 +111,24 @@ class UserResource extends Resource
                 //     ->required()
                 //     ->maxLength(255)
                 //     ->default('Active'),
-                Select::make('banned_status')
-                    ->options([
-                        '1-Day' => '1-Day',
-                        '1-Week' => '1-Week',
-                        '1-Month' => '1-Month',
-                        'Block' => 'Block',
-                        'Active' => 'Active'
-                    ])
-                    ->default('Active')
-                    ->live()
-                    ->native(false)
-                    ->required()
-                    ->afterStateUpdated(function (string $operation, $state, Forms\Set $set) {
-                        switch ($state) {
-                            case ('Block'):
-                                $set('banned_time', 'Block');
-                                break;
-                            case ('1-Day'):
-                                $set('banned_time',  Carbon::now()->addDays(1));
-                                break;
-                            case ('1-Week'):
-                                $set('banned_time', Carbon::now()->addDays(7));
-                                break;
-                            case ('1-Month'):
-                                $set('banned_time', Carbon::now()->addDays(30));
-                                // return  Carbon::now()->addDays(30);
-                                break;
-                            default:
-                                $set('banned_time', NULL);
-                        }
-                        return;
-                    }),
+                Section::make()
+                    ->schema([
+                        Select::make('roles')
+                            ->multiple()
+                            ->relationship('roles', 'name')
+                            ->searchable()
+                            ->preload(),
+                    ]),
+                Section::make()
+                    ->schema([
+                        Select::make('permissions')
+                            ->multiple()
+                            ->relationship('permissions', 'name')
+                            ->searchable()
+                            ->preload()
+                    ]),
+
+
                 // TextInput::make('banned_time'),
                 // TextInput::make('wrong_attempt')
                 //     ->required()
@@ -111,14 +144,27 @@ class UserResource extends Resource
                     ->label('Photo')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('email')
+                    ->sortable()
                     ->searchable(),
+                TextColumn::make('roles.name')
+                    ->sortable()
+                    ->searchable()
+                    ->listWithLineBreaks()
+                    ->badge(),
+                TextColumn::make('permissions.name')
+                    ->sortable()
+                    ->searchable()
+                    ->listWithLineBreaks()
+                    ->badge(),
                 TextColumn::make('banned_time')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('banned_status')
                     ->label('Status')
+                    ->sortable()
                     ->searchable()
                     ->color(fn (string $state): string => match ($state) {
                         'Block' => 'danger',
@@ -140,8 +186,8 @@ class UserResource extends Resource
                 DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
