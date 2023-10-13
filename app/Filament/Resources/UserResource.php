@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PermissionResource\RelationManagers\RolesRelationManager;
-use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -40,6 +38,16 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'User Manage';
     protected static ?int $navigationSort = 1;
+
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->hasRole('Admin'), 403);
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->hasRole('Admin');
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -95,7 +103,12 @@ class UserResource extends Resource
                                 }
                                 return;
                             }),
+
+
                     ])->columns(2),
+
+
+
                 // DateTimePicker::make('email_verified_at'),
                 // Textarea::make('two_factor_secret')
                 //     ->maxLength(65535)
@@ -120,6 +133,12 @@ class UserResource extends Resource
                             ->preload(),
                     ]),
                 Section::make()
+
+
+
+
+
+
                     ->schema([
                         Select::make('permissions')
                             ->multiple()
@@ -134,6 +153,9 @@ class UserResource extends Resource
                 //     ->default(0),
             ]);
     }
+
+
+
     public static function table(Table $table): Table
     {
         return $table
@@ -192,8 +214,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RolesRelationManager::class,
-            PermissionsRelationManager::class
+            //
         ];
     }
     public static function getPages(): array

@@ -17,7 +17,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PermissionResource\Pages;
-use App\Filament\Resources\PermissionResource\RelationManagers\RolesRelationManager;
+
 
 class PermissionResource extends Resource
 {
@@ -25,6 +25,14 @@ class PermissionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-key';
     protected static ?string $navigationGroup = 'User Manage';
     protected static ?int $navigationSort = 3;
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->hasRole('Admin'), 403);
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->hasRole('Admin');
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -73,9 +81,7 @@ class PermissionResource extends Resource
     }
     public static function getRelations(): array
     {
-        return [
-            RolesRelationManager::class
-        ];
+        return [];
     }
     public static function getPages(): array
     {

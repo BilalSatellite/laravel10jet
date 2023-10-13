@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\RoleResource\Pages;
-use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
+
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\UserResource\RelationManagers;
+
 
 class RoleResource extends Resource
 {
@@ -29,6 +29,19 @@ class RoleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationGroup = 'User Manage';
     protected static ?int $navigationSort = 2;
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->hasRole('Admin'), 403);
+    }
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->hasRole('Admin');
+    }
+
+
+
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -82,7 +95,7 @@ class RoleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            PermissionsRelationManager::class
+            //
         ];
     }
     public static function getPages(): array
