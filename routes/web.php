@@ -1,5 +1,4 @@
 <?php
-
 use App\Livewire\CreatePost;
 use Illuminate\Support\Facades\Route;
 /*
@@ -12,10 +11,14 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/panel/login', function () {
+    return redirect('/login');
+})->name('filament.panel.auth.login');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),

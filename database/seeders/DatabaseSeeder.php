@@ -1,7 +1,7 @@
 <?php
-
 namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\GsmSeeder;
 use Illuminate\Database\Seeder;
 use Database\Seeders\PermissionsDemoSeeder;
 
@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PermissionsDemoSeeder::class,
+            GsmSeeder::class,
         ]);
         \App\Models\User::factory(10)->create();
         // \App\Models\User::factory()->create([

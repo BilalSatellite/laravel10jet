@@ -1,5 +1,4 @@
 <?php
-
 return [
 
     /*
@@ -13,9 +12,7 @@ return [
     | This will allow your users to receive real-time notifications.
     |
     */
-
     'broadcasting' => [
-
         // 'echo' => [
         //     'broadcaster' => 'pusher',
         //     'key' => env('VITE_PUSHER_APP_KEY'),
@@ -27,9 +24,7 @@ return [
         //     'disableStats' => true,
         //     'encrypted' => true,
         // ],
-
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
@@ -39,7 +34,5 @@ return [
     | of the disks defined in the `config/filesystems.php`.
     |
     */
-
     'default_filesystem_disk' => env('FILAMENT_FILESYSTEM_DISK', 'public'),
-
 ];

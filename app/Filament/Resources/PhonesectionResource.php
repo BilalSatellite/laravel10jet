@@ -2,11 +2,11 @@
 namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Icbrand;
 use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use App\Models\Phonesection;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -14,17 +14,17 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\IcbrandResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\IcbrandResource\RelationManagers;
-class IcbrandResource extends Resource
+use App\Filament\Resources\PhonesectionResource\Pages;
+use App\Filament\Resources\PhonesectionResource\RelationManagers;
+class PhonesectionResource extends Resource
 {
-    protected static ?string $model = Icbrand::class;
-    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
-    protected static ?string $navigationLabel = 'Ic Brand';
-    protected static ?string $modelLabel = 'Ic Brand';
+    protected static ?string $model = Phonesection::class;
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Phone Sections';
+    protected static ?string $modelLabel = 'Phone Sections';
     protected static ?string $navigationGroup = 'GSM Data';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
     public function mount(): void
     {
         abort_unless(auth()->user()->hasRole('Admin'), 403);
@@ -39,9 +39,11 @@ class IcbrandResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->required()
-                    ->maxLength(255)
                     ->live()
-                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(function (Set $set, ?string $state) {
+                        $set('slug', Str::slug($state));
+                    })
+                    ->maxLength(255),
                 TextInput::make('slug')
                     ->required()
                     ->unique(ignorable: fn ($record) => $record)
@@ -54,7 +56,7 @@ class IcbrandResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-               TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -69,7 +71,7 @@ class IcbrandResource extends Resource
                 //
             ])
             ->actions([
-               EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -86,9 +88,9 @@ class IcbrandResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIcbrands::route('/'),
-            'create' => Pages\CreateIcbrand::route('/create'),
-            'edit' => Pages\EditIcbrand::route('/{record}/edit'),
+            'index' => Pages\ListPhonesections::route('/'),
+            'create' => Pages\CreatePhonesection::route('/create'),
+            'edit' => Pages\EditPhonesection::route('/{record}/edit'),
         ];
     }
 }
