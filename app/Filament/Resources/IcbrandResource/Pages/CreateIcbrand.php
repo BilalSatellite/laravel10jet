@@ -9,4 +9,8 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateIcbrand extends CreateRecord
 {
     protected static string $resource = IcbrandResource::class;
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

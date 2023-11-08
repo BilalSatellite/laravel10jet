@@ -2,32 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Icbrand;
-use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
+use App\Models\Icattribute;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\IcbrandResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\IcbrandResource\RelationManagers;
+use App\Filament\Resources\IcattributeResource\Pages;
+use App\Filament\Resources\IcattributeResource\RelationManagers;
 
-class IcbrandResource extends Resource
+class IcattributeResource extends Resource
 {
-    protected static ?string $model = Icbrand::class;
+    protected static ?string $model = Icattribute::class;
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
-    protected static ?string $navigationLabel = 'Ic Brand';
-    protected static ?string $modelLabel = 'Ic Brand';
+    protected static ?string $navigationLabel = 'Ic Attribute';
+    protected static ?string $modelLabel = 'Ic Attribute';
     protected static ?string $navigationGroup = 'GSM Data';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 6;
     public function mount(): void
     {
         abort_unless(auth()->user()->hasRole('Admin'), 403);
@@ -42,13 +38,10 @@ class IcbrandResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->required()
-                    ->maxLength(255)
-                    ->live(debounce: 300)
-                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
-                TextInput::make('slug')
-                    ->required()
-                    ->unique(ignorable: fn ($record) => $record)
                     ->maxLength(255),
+
+                KeyValue::make('values')
+                    ->required()
             ]);
     }
     public static function table(Table $table): Table
@@ -58,7 +51,8 @@ class IcbrandResource extends Resource
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('slug')
+                TextColumn::make('values')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -90,9 +84,9 @@ class IcbrandResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIcbrands::route('/'),
-            'create' => Pages\CreateIcbrand::route('/create'),
-            'edit' => Pages\EditIcbrand::route('/{record}/edit'),
+            'index' => Pages\ListIcattributes::route('/'),
+            'create' => Pages\CreateIcattribute::route('/create'),
+            'edit' => Pages\EditIcattribute::route('/{record}/edit'),
         ];
     }
 }
