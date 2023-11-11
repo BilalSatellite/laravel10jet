@@ -14,11 +14,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
 Route::get('/panel/login', function () {
     return redirect('/login');
 })->name('filament.panel.auth.login');
-
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
